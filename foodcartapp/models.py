@@ -136,13 +136,15 @@ class Order(models.Model):
         max_length=100
     )
 
-    number = PhoneNumberField(
+    phonenumber = PhoneNumberField(
         'Номер телефона',
+        db_index=True
     )
 
     address = models.CharField(
         'Адрес',
         max_length=255,
+        db_index=True
     )
 
     class Meta:
@@ -159,7 +161,8 @@ class OrderElements(models.Model):
         'Order',
         related_name='order',
         on_delete=models.CASCADE,
-        verbose_name='Составляющие заказа'
+        verbose_name='Заказ',
+        db_index=True
     )
 
     product = models.ForeignKey(
