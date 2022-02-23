@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.shortcuts import reverse
 from django.templatetags.static import static
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 
 from .models import Product
 from .models import ProductCategory
@@ -111,8 +111,6 @@ class ProductAdmin(admin.ModelAdmin):
 class OrderElementsAdmin(admin.StackedInline):
     model = OrderElements
 
-    pass
-
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -126,6 +124,5 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderElements)
 class OrderElements(admin.ModelAdmin):
-    pass
-
+    raw_id_fields = ['order', 'product']
 
