@@ -125,7 +125,6 @@ class OrderAdmin(admin.ModelAdmin):
         model = Order
 
 
-
 @admin.register(OrderElements)
 class OrderElements(admin.ModelAdmin):
     raw_id_fields = ['order', 'product']
