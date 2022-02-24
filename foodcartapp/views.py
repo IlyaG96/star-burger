@@ -59,12 +59,10 @@ def product_list_api(request):
     })
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def register_order(request):
-    try:
-        order_information = json.loads(request.body.decode())
-    except ValueError:
-        return Response({"status": "ok"})
+
+    order_information = request.data
 
     order, created = Order.objects.get_or_create(
         name=order_information['firstname'],
