@@ -118,8 +118,12 @@ class OrderAdmin(admin.ModelAdmin):
         OrderElementsAdmin
     ]
 
+    list_display = ['surname', 'address', 'phonenumber']
+    list_filter = ('surname', 'address')
+
     class Meta:
         model = Order
+
 
 
 @admin.register(OrderElements)
