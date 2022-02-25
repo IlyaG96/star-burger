@@ -1,15 +1,39 @@
 from rest_framework import serializers
-from foodcartapp.models import Order, OrderElements, Product
-from phonenumber_field.serializerfields import PhoneNumberField
+from rest_framework.serializers import ModelSerializer
+from foodcartapp.models import Order, OrderElements
+from rest_framework.serializers import ValidationError
 
 
-class OrderSerializer(serializers.Serializer):
+class OrderElementsSerializer(ModelSerializer):
 
-    id = serializers.IntegerField(read_only=True)
-    firstname = serializers.CharField(max_length=100, required=True)
-    lastname = serializers.CharField(max_length=100, required=True)
-    phonenumber = PhoneNumberField(required=True)
-    address = serializers.CharField(max_length=255, required=True)
+    def create(self, validated_data):
+        return OrderElements.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+
+        instance.product = validated_data.get('product', instance.product)
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        instance.save()
+
+        return instance
+
+    class Meta:
+        model = OrderElements
+        fields = ['product', 'quantity']
+
+
+class OrderSerializer(ModelSerializer):
+
+    products = OrderElementsSerializer(many=True, allow_null=False)
+
+    def validate_products(self, products):
+        if not products:
+            raise ValidationError('products: список не может быть пустым')
+        return products
+
+    class Meta:
+        model = Order
+        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
 
     def create(self, validated_data):
         return Order.objects.create(**validated_data)
@@ -25,27 +49,7 @@ class OrderSerializer(serializers.Serializer):
         return instance
 
 
-class OrderElementsSerializer(serializers.Serializer):
 
-    id = serializers.IntegerField(read_only=True)
-    product = serializers.SlugRelatedField(required=True,
-                                           slug_field='id',
-                                           queryset=Product.objects,
-                                           allow_empty=False)
-    quantity = serializers.IntegerField(required=True,
-                                        min_value=1,
-                                        allow_null=False)
-
-    def create(self, validated_data):
-        return OrderElements.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-
-        instance.product = validated_data.get('product', instance.product)
-        instance.quantity = validated_data.get('quantity', instance.quantity)
-        instance.save()
-
-        return instance
 
 
 

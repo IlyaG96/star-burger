@@ -1,10 +1,9 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
-from .serializers import OrderSerializer, OrderElementsSerializer
+from .serializers import OrderSerializer
 from .models import Product, Order, OrderElements
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 
 
 def banners_list_api(request):
@@ -61,39 +60,20 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
+    order_serializer = OrderSerializer(data=request.data)
+    order_serializer.is_valid(raise_exception=True)
 
-    order_information = request.data
+    order = Order.objects.create(
+        firstname=order_serializer.validated_data['firstname'],
+        lastname=order_serializer.validated_data['lastname'],
+        phonenumber=order_serializer.validated_data['phonenumber'],
+        address=order_serializer.validated_data['address']
+    )
 
-    order_serializer = OrderSerializer(data=order_information, required=True)
+    for element in order_serializer.validated_data['products']:
+        product, quantity = element.values()
+        OrderElements.objects.create(order=order,
+                                     product=product,
+                                     quantity=quantity)
 
-    try:
-        order_elements_serializer = OrderElementsSerializer(data=order_information['products'],
-                                                            many=True)
-
-    except KeyError:
-        raise ValidationError(["products: Обязательное поле"])
-
-    if not order_information['products']:
-        raise ValidationError(["products: список не может быть пустым"])
-
-    if order_serializer.is_valid(raise_exception=True):
-        if order_elements_serializer.is_valid(raise_exception=True):
-
-            order = Order.objects.create(
-                firstname=order_information['firstname'],
-                lastname=order_information['lastname'],
-                phonenumber=order_information['phonenumber'],
-                address=order_information['address']
-            )
-
-            for element in order_information['products']:
-                if not element:
-                    raise ValidationError(["products: Этот список не может быть пустым."])
-
-                order_details = OrderElements(order=order)
-                product_id, quantity = element.values()
-                order_details.product = Product.objects.get(id=product_id)
-                order_details.quantity = quantity
-                order_details.save()
-
-    return Response({})
+    return Response({'Status:200 OK'})
