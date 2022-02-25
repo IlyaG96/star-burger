@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from .serializers import OrderSerializer, OrderElementsSerializer
 from .models import Product, Order, OrderElements
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
 
 def banners_list_api(request):
@@ -70,10 +71,10 @@ def register_order(request):
                                                             many=True)
 
     except KeyError:
-        return Response({"products: Обязательное поле"})
+        raise ValidationError(["products: Обязательное поле"])
 
     if not order_information['products']:
-        return Response({"products: список не может быть пустым"})
+        raise ValidationError(["products: список не может быть пустым"])
 
     if order_serializer.is_valid(raise_exception=True):
         if order_elements_serializer.is_valid(raise_exception=True):
@@ -87,7 +88,7 @@ def register_order(request):
 
             for element in order_information['products']:
                 if not element:
-                    return Response({"products: Этот список не может быть пустым."})
+                    raise ValidationError(["products: Этот список не может быть пустым."])
 
                 order_details = OrderElements(order=order)
                 product_id, quantity = element.values()
