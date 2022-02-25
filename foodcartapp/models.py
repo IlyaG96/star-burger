@@ -98,7 +98,7 @@ class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
         related_name='menu_items',
-        verbose_name="ресторан",
+        verbose_name='ресторан',
         on_delete=models.CASCADE,
     )
     product = models.ForeignKey(
@@ -121,7 +121,7 @@ class RestaurantMenuItem(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.restaurant.name} - {self.product.name}"
+        return f'{self.restaurant.name} - {self.product.name}'
 
 
 class Order(models.Model):
@@ -149,7 +149,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self):
-        return f"{self.firstname} {self.lastname}: {self.address}"
+        return f'{self.firstname} {self.lastname}: {self.address}'
 
 
 class OrderElements(models.Model):
@@ -173,8 +173,8 @@ class OrderElements(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Элементы заказа'
+        verbose_name = 'Составляющая заказа'
         verbose_name_plural = 'Элементы заказов'
 
     def __str__(self):
-        return f"{self.id} пункт заказа - {self.product}"
+        return f'{self.order.id} - {self.product}'
