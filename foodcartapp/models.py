@@ -130,17 +130,14 @@ class Order(models.Model):
         'Имя',
         max_length=100,
     )
-
     surname = models.CharField(
         'Фамилия',
         max_length=100
     )
-
     phonenumber = PhoneNumberField(
         'Номер телефона',
         db_index=True
     )
-
     address = models.CharField(
         'Адрес',
         max_length=255,
@@ -164,14 +161,12 @@ class OrderElements(models.Model):
         verbose_name='Заказ',
         db_index=True
     )
-
     product = models.ForeignKey(
         'Product',
         related_name='order_product',
         on_delete=models.CASCADE,
         verbose_name='Продукт'
     )
-
     quantity = models.PositiveIntegerField(
         verbose_name='Количество',
         default=1
@@ -183,4 +178,3 @@ class OrderElements(models.Model):
 
     def __str__(self):
         return f"{self.id} пункт заказа - {self.product}"
-
