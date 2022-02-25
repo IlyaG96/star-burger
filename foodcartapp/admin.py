@@ -118,8 +118,8 @@ class OrderAdmin(admin.ModelAdmin):
         OrderElementsAdmin
     ]
 
-    list_display = ['surname', 'address', 'phonenumber']
-    list_filter = ('surname', 'address')
+    list_display = ['lastname', 'address', 'phonenumber']
+    list_filter = ('lastname', 'address')
 
     class Meta:
         model = Order
