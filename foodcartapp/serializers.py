@@ -46,17 +46,3 @@ class OrderSerializer(ModelSerializer):
         instance.save()
 
         return instance
-
-
-
-
-
-
-
-
-
-
-
-
-
-
