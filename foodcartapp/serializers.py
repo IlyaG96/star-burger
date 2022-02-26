@@ -23,7 +23,7 @@ class OrderElementsSerializer(ModelSerializer):
 
 class OrderSerializer(ModelSerializer):
 
-    products = OrderElementsSerializer(many=True, allow_null=False)
+    products = OrderElementsSerializer(many=True, allow_null=False, write_only=True)
 
     def validate_products(self, products):
         if not products:

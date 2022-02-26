@@ -76,4 +76,15 @@ def register_order(request):
                                      product=product,
                                      quantity=quantity)
 
-    return Response({'Status:200 OK'})
+    return Response({order})
+
+
+@api_view(['GET'])
+def view_order(request, order_id):
+
+    order = Order.objects.get(id=order_id)
+    order_serializer = OrderSerializer(order)
+
+    return Response(order_serializer.data)
+
+
