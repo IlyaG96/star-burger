@@ -76,7 +76,7 @@ def register_order(request):
                                      product=product,
                                      quantity=quantity)
 
-    return Response({order})
+    return Response({})
 
 
 @api_view(['GET'])

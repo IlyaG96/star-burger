@@ -124,7 +124,17 @@ class RestaurantMenuItem(models.Model):
         return f'{self.restaurant.name} - {self.product.name}'
 
 
+class OrderQuerySet(models.QuerySet):
+
+    def prefetch_order_elements(self):
+        with_elements = self.prefetch_related('elements')
+
+        return with_elements
+
+
 class Order(models.Model):
+
+    objects = OrderQuerySet.as_manager()
 
     firstname = models.CharField(
         'Имя',
@@ -151,19 +161,25 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.firstname} {self.lastname}: {self.address}'
 
+    def count_price(self):
+        price = 0
+        for element in self.elements.all():
+            price += element.product.price*element.quantity
+            return price
+
 
 class OrderElements(models.Model):
 
     order = models.ForeignKey(
         'Order',
-        related_name='order',
+        related_name='elements',
         on_delete=models.CASCADE,
         verbose_name='Заказ',
         db_index=True
     )
     product = models.ForeignKey(
         'Product',
-        related_name='order_product',
+        related_name='order_products',
         on_delete=models.CASCADE,
         verbose_name='Продукт'
     )

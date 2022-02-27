@@ -3,12 +3,11 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, OrderElements
 
 
 class Login(forms.Form):
@@ -97,9 +96,11 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    order_items = Order.objects.prefetch_order_elements()
+    for item in order_items:
+        item.price = Order.count_price(item)
 
-    order_items = Order.objects.all()
 
     return render(request, template_name='order_items.html', context={
-        'order_items': order_items
-    })
+            'order_items': order_items
+        })
