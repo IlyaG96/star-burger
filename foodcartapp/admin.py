@@ -118,8 +118,20 @@ class OrderAdmin(admin.ModelAdmin):
         OrderElementsAdmin
     ]
 
-    list_display = ['lastname', 'address', 'phonenumber']
+    list_display = ['lastname', 'address', 'phonenumber', 'price']
     list_filter = ('lastname', 'address')
+    readonly_fields = ('price',)
+
+    def price(self, obj):
+        return obj.price
+
+    price.short_description = 'цена'
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).show_price_admin()
+        return queryset
+
+
 
     class Meta:
         model = Order
