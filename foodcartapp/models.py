@@ -185,7 +185,16 @@ class OrderElements(models.Model):
     )
     quantity = models.PositiveIntegerField(
         verbose_name='Количество',
-        default=1
+        default=1,
+        validators=[MinValueValidator(1)]
+    )
+
+    price_in_order = models.DecimalField(
+        verbose_name='Стоимость',
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(1)],
+        null=True
     )
 
     class Meta:

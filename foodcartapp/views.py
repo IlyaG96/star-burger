@@ -74,7 +74,8 @@ def register_order(request):
         product, quantity = element.values()
         OrderElements.objects.create(order=order,
                                      product=product,
-                                     quantity=quantity)
+                                     quantity=quantity,
+                                     price_in_order=product.price * quantity)
 
     return Response({})
 
