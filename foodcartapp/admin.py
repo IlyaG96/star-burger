@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.shortcuts import reverse
 from django.templatetags.static import static
-from django.utils.html import format_html, mark_safe
-
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.html import format_html
+from django.http import HttpResponseRedirect
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
@@ -131,7 +132,14 @@ class OrderAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request).show_price_admin()
         return queryset
 
-
+    def response_change(self, request, obj):
+        res = super().response_change(request, obj)
+        if 'next' in request.GET:
+            url_is_safe = url_has_allowed_host_and_scheme(url=request.GET['next'], allowed_hosts=None)
+            if url_is_safe:
+                return HttpResponseRedirect(request.GET['next'])
+        else:
+            return res
 
     class Meta:
         model = Order
