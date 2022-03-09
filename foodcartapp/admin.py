@@ -133,13 +133,13 @@ class OrderAdmin(admin.ModelAdmin):
         return queryset
 
     def response_change(self, request, obj):
-        res = super().response_change(request, obj)
+        response = super().response_change(request, obj)
         if 'next' in request.GET:
             url_is_safe = url_has_allowed_host_and_scheme(url=request.GET['next'], allowed_hosts=None)
             if url_is_safe:
                 return HttpResponseRedirect(request.GET['next'])
         else:
-            return res
+            return response
 
     class Meta:
         model = Order

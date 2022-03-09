@@ -163,12 +163,6 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.firstname} {self.lastname}: {self.address}'
 
-    def count_price(self):
-        price = 0
-        for element in self.elements.all():
-            price += element.product.price*element.quantity
-            return price
-
 
 class OrderElements(models.Model):
 
