@@ -148,4 +148,3 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderElements)
 class OrderElements(admin.ModelAdmin):
     raw_id_fields = ['order', 'product']
-

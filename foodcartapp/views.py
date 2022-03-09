@@ -89,5 +89,3 @@ def view_order(request, order_id):
     order_serializer = OrderSerializer(order)
 
     return Response(order_serializer.data)
-
-
