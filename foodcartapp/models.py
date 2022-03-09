@@ -96,14 +96,6 @@ class Product(models.Model):
         return self.name
 
 
-class RestaurantMenuItemQuerySet(models.QuerySet):
-    pass
-"""    def with_restaurants(self):
-        menu_items = self.filter(availability=True)
-        menu_items_by_restaurants = {}
-        restaurant = menu_items.select_related('restaurant') #"""
-
-
 class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
