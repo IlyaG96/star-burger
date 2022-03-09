@@ -96,6 +96,14 @@ class Product(models.Model):
         return self.name
 
 
+class RestaurantMenuItemQuerySet(models.QuerySet):
+    pass
+"""    def with_restaurants(self):
+        menu_items = self.filter(availability=True)
+        menu_items_by_restaurants = {}
+        restaurant = menu_items.select_related('restaurant') #"""
+
+
 class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
@@ -216,7 +224,22 @@ class Order(models.Model):
         return f'{self.firstname} {self.lastname}: {self.address}'
 
 
+class OrderElementsQuerySet(models.QuerySet):
+
+    def related_restaurants(self):
+        restaurants = []
+        for element in self.select_related('product'):
+            rest_menu = element.product.menu_items.filter(availability=True).select_related('restaurant')
+            for menu_element in rest_menu:
+                if menu_element.product == element.product:
+                    restaurants.append(menu_element.restaurant)
+
+            return restaurants
+
+
 class OrderElements(models.Model):
+
+    objects = OrderElementsQuerySet.as_manager()
 
     order = models.ForeignKey(
         'Order',
