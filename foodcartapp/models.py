@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import Count, Sum, F
+from django.db.models import Sum, F
 
 
 class Restaurant(models.Model):
@@ -136,6 +136,14 @@ class OrderQuerySet(models.QuerySet):
 
 class Order(models.Model):
 
+    ORDER_STATUSES = (
+        ('Необработанный', 'Необработанный'),
+        ('Обработан', 'Обработан'),
+        ('Готовится', 'Готовится'),
+        ('Доставляется', 'Доставляется'),
+        ('Выполнен', 'Выполнен'),
+    )
+
     objects = OrderQuerySet.as_manager()
 
     firstname = models.CharField(
@@ -154,6 +162,13 @@ class Order(models.Model):
         'Адрес',
         max_length=255,
         db_index=True
+    )
+    status = models.CharField(
+        'Cтатус',
+        choices=ORDER_STATUSES,
+        db_index=True,
+        max_length=25,
+        default='Необработанный'
     )
 
     class Meta:
