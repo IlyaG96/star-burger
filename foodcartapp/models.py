@@ -145,6 +145,11 @@ class Order(models.Model):
         ('Выполнен', 'Выполнен'),
     )
 
+    PAYMENT = (
+        ('Наличностью', 'Наличностью'),
+        ('Электронно', 'Электронно'),
+    )
+
     objects = OrderQuerySet.as_manager()
 
     firstname = models.CharField(
@@ -194,6 +199,13 @@ class Order(models.Model):
         null=True,
         default=None,
         db_index=True
+    )
+    payment = models.CharField(
+        'Способ оплаты',
+        choices=PAYMENT,
+        default='Наличностью',
+        max_length=25,
+        db_index=True,
     )
 
     class Meta:
