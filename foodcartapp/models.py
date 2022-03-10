@@ -33,8 +33,8 @@ class ProductQuerySet(models.QuerySet):
     def available(self):
         products = (
             RestaurantMenuItem.objects
-            .filter(availability=True)
-            .values_list('product')
+                              .filter(availability=True)
+                              .values_list('product')
         )
         return self.filter(pk__in=products)
 
@@ -136,7 +136,6 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-
     ORDER_STATUSES = (
         ('Необработанный', 'Необработанный'),
         ('Обработан', 'Обработан'),
@@ -148,6 +147,7 @@ class Order(models.Model):
     PAYMENT = (
         ('Наличностью', 'Наличностью'),
         ('Электронно', 'Электронно'),
+        ('Не выбрано', 'Не выбрано'),
     )
 
     objects = OrderQuerySet.as_manager()
@@ -203,7 +203,7 @@ class Order(models.Model):
     payment = models.CharField(
         'Способ оплаты',
         choices=PAYMENT,
-        default='Наличностью',
+        default='Не выбрано',
         max_length=25,
         db_index=True,
     )
@@ -219,18 +219,14 @@ class Order(models.Model):
 class OrderElementsQuerySet(models.QuerySet):
 
     def related_restaurants(self):
-        restaurants = []
         for element in self.select_related('product'):
-            rest_menu = element.product.menu_items.filter(availability=True).select_related('restaurant')
-            for menu_element in rest_menu:
-                if menu_element.product == element.product:
-                    restaurants.append(menu_element.restaurant)
-
-            return restaurants
+            aval_products_for_rest = element.product.menu_items.filter(availability=True).select_related('restaurant')
+            aval_rests_for_product = [aval_rests_for_product.restaurant for aval_rests_for_product in
+                                      aval_products_for_rest]
+            return aval_rests_for_product
 
 
 class OrderElements(models.Model):
-
     objects = OrderElementsQuerySet.as_manager()
 
     order = models.ForeignKey(
