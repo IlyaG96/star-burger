@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login
 from foodcartapp.models import Product, Restaurant, Order
 from django.contrib.auth.decorators import user_passes_test
 from django.conf import settings
+from geopy import distance
 
 
 class Login(forms.Form):
@@ -112,10 +113,23 @@ def fetch_coordinates(api, address):
     return lon, lat
 
 
+def add_distances(order_address, order_restaurants):
+    yandex_api = settings.YANDEX_GEO_API
+    order_coords = fetch_coordinates(yandex_api, order_address)
+    for restaurant in order_restaurants:
+        restaurant_coords = fetch_coordinates(yandex_api, restaurant.address)
+        restaurant.distance = round(distance.distance(order_coords, restaurant_coords).km, 3)
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
 
     order_items = Order.objects.all().prefetch_related('elements').show_price_admin().show_available_rests()
+    for order in order_items:
+        order_address = order.address
+        order_restaurants = order.restaurants
+        add_distances(order_address, order_restaurants)
+
     return render(request, template_name='order_items.html', context={
             'order_items': order_items
         })
