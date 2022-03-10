@@ -136,12 +136,12 @@ class OrderQuerySet(models.QuerySet):
         return with_price
 
     def show_available_rests(self):
-        rests = Restaurant.objects.all().prefetch_related('menu_items')
+        restaurants = Restaurant.objects.all()
         all_rests = {}
-        for rest in rests:
-            rest_menus = rest.menu_items.select_related('product').all()
+        for restaurant in restaurants:
+            rest_menus = restaurant.menu_items.select_related('product').all()
             menu = [menu.product for menu in rest_menus]
-            all_rests.update({rest: menu})
+            all_rests.update({restaurant: menu})
 
         for order in self:
             available_rests = []

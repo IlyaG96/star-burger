@@ -116,8 +116,6 @@ def fetch_coordinates(api, address):
 def view_orders(request):
 
     order_items = Order.objects.all().prefetch_related('elements').show_price_admin().show_available_rests()
-    for items in order_items:
-        print(items.restaurants)
     return render(request, template_name='order_items.html', context={
             'order_items': order_items
         })
