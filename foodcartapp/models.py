@@ -1,8 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import Sum, F
+from django.db.models import Sum, Q, F, OuterRef, Subquery, Exists
 from django.utils import timezone
+from django.db.models import Value
 
 
 class Restaurant(models.Model):
@@ -33,8 +34,8 @@ class ProductQuerySet(models.QuerySet):
     def available(self):
         products = (
             RestaurantMenuItem.objects
-                              .filter(availability=True)
-                              .values_list('product')
+                .filter(availability=True)
+                .values_list('product')
         )
         return self.filter(pk__in=products)
 
@@ -134,6 +135,27 @@ class OrderQuerySet(models.QuerySet):
         )
         return with_price
 
+    def show_available_rests(self):
+        rests = Restaurant.objects.all().prefetch_related('menu_items')
+        all_rests = {}
+        for rest in rests:
+            rest_menus = rest.menu_items.select_related('product').all()
+            menu = [menu.product for menu in rest_menus]
+            all_rests.update({rest: menu})
+
+        for order in self:
+            available_rests = []
+            order_products = [element.product for element in order.elements.select_related('product').all()]
+            for rest, menu in all_rests.items():
+
+                result = all(elem in order_products for elem in menu)
+                if result:
+                    available_rests.append(rest)
+
+                order.restaurants = available_rests
+
+        return self
+
 
 class Order(models.Model):
     ORDER_STATUSES = (
@@ -216,8 +238,12 @@ class Order(models.Model):
         return f'{self.firstname} {self.lastname}: {self.address}'
 
 
-class OrderElementsQuerySet(models.QuerySet):
 
+class OrderElementsQuerySet(models.QuerySet):
+    #  all products from order [1,2,3]
+    #  all rests to every product in order
+    #  if products in rests aval_rests.append
+    #
     def related_restaurants(self):
         for element in self.select_related('product'):
             aval_products_for_rest = element.product.menu_items.filter(availability=True).select_related('restaurant')
@@ -262,3 +288,29 @@ class OrderElements(models.Model):
 
     def __str__(self):
         return f'{self.order.id} - {self.product}'
+
+
+"""    def show_available_rests(self):
+        rests = Restaurant.objects.all().prefetch_related('menu_items')
+        all_rests = {}
+        available_rests = []
+        for rest in rests:
+            rest_menus = rest.menu_items.select_related('product').all()
+            menu = [menu.product for menu in rest_menus]
+            all_rests.update({rest: menu})
+
+        for order in self.prefetch_related('elements'):
+
+            order_products = [element.product for element in order.elements.select_related('product').all()]
+            print(order_products)
+            for rest, menu in all_rests.items():
+                result = all(elem in order_products for elem in menu)
+                if result:
+                    available_rests.append(rest)
+                else:
+                    available_rests.append(None)
+
+        with_rests = self.annotate(
+            restaurants=Subquery(available_rests)
+        )
+        return with_rests"""
