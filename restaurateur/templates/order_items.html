@@ -36,7 +36,9 @@
         <td>{{item.price}} руб.</td>
         <td><details>
           <summary>Рестораны</summary>
-            <p>{{ item.restaurants }}<br>{{ restaurant.address }}</p>
+          {% for restaurant in item.restaurants  %}
+            <p>{{ restaurant.name }}<br>{{ restaurant.address }}</p>
+          {% endfor %}
         </details></td>
 
         <td><a href="{% url 'admin:foodcartapp_order_change' object_id=item.id %}?next={{ request.path|urlencode }}">Редактировать</a></td>
