@@ -7,7 +7,6 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth import authenticate, login
 from foodcartapp.models import Product, Restaurant, Order
 from django.contrib.auth.decorators import user_passes_test
-from django.conf import settings
 from geopy import distance
 from geoapp.models import GeoData
 
@@ -115,16 +114,16 @@ def fetch_coordinates(api, address):
 
 
 def add_distances(order, order_restaurants):
+
     distances = []
     for restaurant in order_restaurants:
-        print(restaurant)
         geo_address, created = GeoData.objects.get_or_create(address=restaurant.address)
         if created:
             geo_address.fetch_coordinates()
         restaurant.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
-        distances.append(round(distance.distance(order.coordinates, restaurant.coordinates).km, 3))
+        distances.append(round(distance.distance(order.coordinates, restaurant.coordinates).km, 2))
 
-    order.distances = distances
+    order.rests_with_dists = list(zip(order.restaurants, distances))
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
@@ -138,7 +137,6 @@ def view_orders(request):
             geo_address.fetch_coordinates()
         order.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
         add_distances(order, order.restaurants)
-        print(order.distances)
 
     return render(request, template_name='order_items.html', context={
             'order_items': order_items,

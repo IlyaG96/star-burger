@@ -35,12 +35,10 @@
         <td>{{item.comments}}</td>
         <td>{{item.price}} руб.</td>
         <td><details>
+
           <summary>Рестораны</summary>
-          {% for restaurant in item.restaurants %}
-            <p>{{ restaurant.name }}: <br>{{ restaurant.distance }} км</p>
-          {% endfor %}
-            {% for distance in item.distances %}
-              {{ distance }}
+          {% for restaurant, distance in item.rests_with_dists %}
+            <p>{{ restaurant.name }} - {{ distance }} км</p>
             {% endfor %}
         </details></td>
 
