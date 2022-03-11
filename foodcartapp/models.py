@@ -147,7 +147,7 @@ class OrderQuerySet(models.QuerySet):
             order_products = [element.product for element in order.elements.select_related('product').all()]
             for rest, menu in all_rests.items():
 
-                result = all(elem in order_products for elem in menu)
+                result = all(elem in menu for elem in order_products)
                 if result:
                     available_rests.append(rest)
 
