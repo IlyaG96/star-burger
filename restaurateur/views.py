@@ -114,13 +114,17 @@ def fetch_coordinates(api, address):
     return lon, lat
 
 
-def add_distances(order_coords, order_restaurants):
+def add_distances(order, order_restaurants):
+    distances = []
     for restaurant in order_restaurants:
+        print(restaurant)
         geo_address, created = GeoData.objects.get_or_create(address=restaurant.address)
         if created:
             geo_address.fetch_coordinates()
         restaurant.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
-        restaurant.distance = round(distance.distance(order_coords, restaurant.coordinates).km, 3)
+        distances.append(round(distance.distance(order.coordinates, restaurant.coordinates).km, 3))
+
+    order.distances = distances
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
@@ -133,7 +137,8 @@ def view_orders(request):
         if created:
             geo_address.fetch_coordinates()
         order.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
-        add_distances(order.coordinates, order.restaurants)
+        add_distances(order, order.restaurants)
+        print(order.distances)
 
     return render(request, template_name='order_items.html', context={
             'order_items': order_items,
