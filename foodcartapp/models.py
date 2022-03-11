@@ -137,14 +137,14 @@ class OrderQuerySet(models.QuerySet):
     def show_available_rests(self):
         restaurants = Restaurant.objects.all()
         all_rests = {}
-        for restaurant in restaurants:
-            rest_menus = restaurant.menu_items.select_related('product').all()
+        for restaurant in restaurants.prefetch_related('menu_items__product'):
+            rest_menus = restaurant.menu_items.all()
             menu = [menu.product for menu in rest_menus]
             all_rests.update({restaurant: menu})
 
         for order in self:
             available_rests = []
-            order_products = [element.product for element in order.elements.select_related('product').all()]
+            order_products = [element.product for element in order.elements.select_related('product')]
             for rest, menu in all_rests.items():
 
                 result = all(elem in menu for elem in order_products)
@@ -237,17 +237,7 @@ class Order(models.Model):
         return f'{self.firstname} {self.lastname}: {self.address}'
 
 
-class OrderElementsQuerySet(models.QuerySet):
-    def related_restaurants(self):
-        for element in self.select_related('product'):
-            aval_products_for_rest = element.product.menu_items.filter(availability=True).select_related('restaurant')
-            aval_rests_for_product = [aval_rests_for_product.restaurant for aval_rests_for_product in
-                                      aval_products_for_rest]
-            return aval_rests_for_product
-
-
 class OrderElements(models.Model):
-    objects = OrderElementsQuerySet.as_manager()
 
     order = models.ForeignKey(
         'Order',

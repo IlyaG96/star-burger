@@ -130,7 +130,7 @@ def add_distances(order, order_restaurants):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.all().prefetch_related('elements').show_price_admin().show_available_rests()
+    order_items = Order.objects.show_price_admin().show_available_rests()
 
     for order in order_items:
         address = order.address
