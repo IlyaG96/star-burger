@@ -1,8 +1,13 @@
-django==3.2
+Django==3.2
 django-debug-toolbar==3.2.1
+requests==2.27.1
+djangorestframework==3.13.1
+django-debug-toolbar==3.2.1
+environs==9.3.2
+geopy==2.2.0
 Pillow==8.2.0
-environs[django]==9.3.2
 django-phonenumber-field==6.1.0
 phonenumbers==8.12.43
-djangorestframework==3.13.1
-requests==2.27.1
+
+
+
