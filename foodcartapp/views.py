@@ -5,6 +5,8 @@ from .serializers import OrderSerializer
 from .models import Product, Order, OrderElements
 from rest_framework.response import Response
 from django.db import transaction
+from geoapp.models import GeoData
+from django.utils import timezone
 
 
 def banners_list_api(request):
@@ -71,6 +73,12 @@ def register_order(request):
         phonenumber=order_serializer.validated_data['phonenumber'],
         address=order_serializer.validated_data['address']
     )
+    current_address = GeoData.objects.create(
+        address=order_serializer.validated_data['address'],
+        update_time=timezone.now()
+
+    )
+    GeoData.fetch_coordinates(current_address)
 
     for element in order_serializer.validated_data['products']:
         product, quantity = element.values()
