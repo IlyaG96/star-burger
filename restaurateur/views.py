@@ -9,6 +9,7 @@ from foodcartapp.models import Product, Restaurant, Order
 from django.contrib.auth.decorators import user_passes_test
 from geopy import distance
 from geoapp.models import GeoData
+from django.utils import timezone
 
 
 class Login(forms.Form):
@@ -120,6 +121,7 @@ def add_distances(order, order_restaurants):
         geo_address, created = GeoData.objects.get_or_create(address=restaurant.address)
         if created:
             geo_address.fetch_coordinates()
+            geo_address.update_time = timezone.now()
         restaurant.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
         distances.append(round(distance.distance(order.coordinates, restaurant.coordinates).km, 2))
 
@@ -135,6 +137,7 @@ def view_orders(request):
         geo_address, created = GeoData.objects.get_or_create(address=address)
         if created:
             geo_address.fetch_coordinates()
+            geo_address.update_time = timezone.now()
         order.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
         add_distances(order, order.restaurants)
 

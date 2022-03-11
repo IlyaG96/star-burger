@@ -73,12 +73,14 @@ def register_order(request):
         phonenumber=order_serializer.validated_data['phonenumber'],
         address=order_serializer.validated_data['address']
     )
-    current_address = GeoData.objects.create(
+    current_address, created = GeoData.objects.get_or_create(
         address=order_serializer.validated_data['address'],
-        update_time=timezone.now()
-
     )
-    GeoData.fetch_coordinates(current_address)
+
+    current_address.update_time = timezone.now()
+    
+    if created:
+        GeoData.fetch_coordinates(current_address)
 
     for element in order_serializer.validated_data['products']:
         product, quantity = element.values()
