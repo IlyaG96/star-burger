@@ -171,8 +171,6 @@ class Order(models.Model):
         ('Не выбрано', 'Не выбрано'),
     )
 
-    objects = OrderQuerySet.as_manager()
-
     firstname = models.CharField(
         'Имя',
         max_length=100,
@@ -228,6 +226,9 @@ class Order(models.Model):
         max_length=25,
         db_index=True,
     )
+
+    objects = OrderQuerySet.as_manager()
+
 
     class Meta:
         verbose_name = 'Заказ'

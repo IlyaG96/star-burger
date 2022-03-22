@@ -5,6 +5,10 @@ from rest_framework.serializers import ValidationError
 
 class OrderElementsSerializer(ModelSerializer):
 
+    class Meta:
+        model = OrderElements
+        fields = ['product', 'quantity']
+
     def create(self, validated_data):
         return OrderElements.objects.create(**validated_data)
 
@@ -16,19 +20,12 @@ class OrderElementsSerializer(ModelSerializer):
 
         return instance
 
-    class Meta:
-        model = OrderElements
-        fields = ['product', 'quantity']
+
 
 
 class OrderSerializer(ModelSerializer):
 
     products = OrderElementsSerializer(many=True, allow_null=False, write_only=True)
-
-    def validate_products(self, products):
-        if not products:
-            raise ValidationError('products: список не может быть пустым')
-        return products
 
     class Meta:
         model = Order
@@ -46,3 +43,8 @@ class OrderSerializer(ModelSerializer):
         instance.save()
 
         return instance
+
+    def validate_products(self, products):
+        if not products:
+            raise ValidationError('products: список не может быть пустым')
+        return products
