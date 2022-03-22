@@ -229,7 +229,6 @@ class Order(models.Model):
 
     objects = OrderQuerySet.as_manager()
 
-
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
@@ -249,13 +248,12 @@ class OrderElements(models.Model):
     )
     product = models.ForeignKey(
         'Product',
-        related_name='order_products',
+        related_name='order_elements',
         on_delete=models.CASCADE,
         verbose_name='Продукт'
     )
     quantity = models.PositiveIntegerField(
         verbose_name='Количество',
-        default=1,
         validators=[MinValueValidator(1)]
     )
 
@@ -264,7 +262,6 @@ class OrderElements(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[MinValueValidator(1)],
-        null=True
     )
 
     class Meta:
