@@ -77,8 +77,6 @@ def register_order(request):
         address=order_serializer.validated_data['address'],
     )
 
-    current_address.update_time = timezone.now()
-    
     if created:
         GeoData.fetch_coordinates(current_address)
 

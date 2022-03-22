@@ -26,7 +26,7 @@ class GeoData(models.Model):
     update_time = models.DateTimeField(
         'Дата последнего обновления',
         null=True,
-        default=None
+        auto_now_add=True
     )
 
     def fetch_coordinates(self):
