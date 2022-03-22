@@ -135,8 +135,8 @@ class OrderAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         response = super().response_change(request, obj)
         if 'next' in request.GET:
-            url_is_safe = url_has_allowed_host_and_scheme(url=request.GET['next'], allowed_hosts=None)
-            if url_is_safe:
+            is_url_safe = url_has_allowed_host_and_scheme(url=request.GET['next'], allowed_hosts=None)
+            if is_url_safe:
                 return HttpResponseRedirect(request.GET['next'])
         else:
             return response
