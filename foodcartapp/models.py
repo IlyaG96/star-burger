@@ -140,7 +140,7 @@ class OrderQuerySet(models.QuerySet):
         for restaurant in restaurants.prefetch_related('menu_items__product'):
             rest_menus = restaurant.menu_items.all()
             menu = [menu.product for menu in rest_menus]
-            all_rests.update({restaurant: menu})
+            all_rests[restaurant] = menu
 
         for order in self:
             available_rests = []
