@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from geoapp.models import GeoData
 from django.utils import timezone
+from textwrap import dedent
 
 
 def banners_list_api(request):
@@ -86,7 +87,12 @@ def register_order(request):
                                      quantity=quantity,
                                      price_in_order=product.price * quantity)
 
-    return Response({})
+    return Response({
+        dedent(f'''
+        Заказ {order.id} на адрес {order.address} создан.
+        ''')
+
+    })
 
 
 @api_view(['GET'])
