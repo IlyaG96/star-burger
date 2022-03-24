@@ -129,7 +129,7 @@ class OrderAdmin(admin.ModelAdmin):
     price.short_description = 'цена'
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request).show_price_admin()
+        queryset = super().get_queryset(request).show_price()
         return queryset
 
     def response_change(self, request, obj):

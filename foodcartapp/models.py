@@ -3,6 +3,18 @@ from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum, F
 from django.utils import timezone
+from geoapp.models import GeoData
+
+
+class RestaurantQueryset(models.QuerySet):
+
+    def with_geo_attributes(self):
+        addresses = [restaurant.address for restaurant in self]
+        geo_attrs = GeoData.objects.filter(address__in=addresses)
+        for restaurant in self:
+            restaurant.geodata = list(filter(lambda geo: geo.address == restaurant.address, geo_attrs))[0]
+
+        return self
 
 
 class Restaurant(models.Model):
@@ -21,9 +33,15 @@ class Restaurant(models.Model):
         blank=True,
     )
 
+    objects = RestaurantQueryset.as_manager()
+
     class Meta:
         verbose_name = 'ресторан'
         verbose_name_plural = 'рестораны'
+
+    def load_geos(self):
+        self.geodata = GeoData.objects.filter(address=self.address)
+        return self
 
     def __str__(self):
         return self.name
@@ -152,6 +170,14 @@ class OrderQuerySet(models.QuerySet):
                     available_rests.append(rest)
 
                 order.restaurants = available_rests
+
+        return self
+
+    def with_geo_attributes(self):
+        addresses = [order.address for order in self]
+        geo_attrs = GeoData.objects.filter(address__in=addresses)
+        for order in self:
+            order.geodata = list(filter(lambda geo: geo.address == order.address, geo_attrs))[0]
 
         return self
 

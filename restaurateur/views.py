@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import user_passes_test
 from geopy import distance
 from geoapp.models import GeoData
 from django.utils import timezone
+from django.db.models import Prefetch
 
 
 class Login(forms.Form):
@@ -32,7 +33,7 @@ class Login(forms.Form):
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         form = Login()
-        return render(request, "login.html", context={
+        return render(request, 'login.html', context={
             'form': form
         })
 
@@ -47,10 +48,10 @@ class LoginView(View):
             if user:
                 login(request, user)
                 if user.is_staff:  # FIXME replace with specific permission
-                    return redirect("restaurateur:RestaurantView")
-                return redirect("start_page")
+                    return redirect('restaurateur:RestaurantView')
+                return redirect('start_page')
 
-        return render(request, "login.html", context={
+        return render(request, 'login.html', context={
             'form': form,
             'ivalid': True,
         })
@@ -83,7 +84,7 @@ def view_products(request):
             (product, orderer_availability)
         )
 
-    return render(request, template_name="products_list.html", context={
+    return render(request, template_name='products_list.html', context={
         'products_with_restaurants': products_with_restaurants,
         'restaurants': restaurants,
     })
@@ -91,17 +92,17 @@ def view_products(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_restaurants(request):
-    return render(request, template_name="restaurants_list.html", context={
+    return render(request, template_name='restaurants_list.html', context={
         'restaurants': Restaurant.objects.all(),
     })
 
 
 def fetch_coordinates(api, address):
-    base_url = "https://geocode-maps.yandex.ru/1.x"
+    base_url = 'https://geocode-maps.yandex.ru/1.x'
     response = requests.get(base_url, params={
-        "geocode": address,
-        "apikey": api,
-        "format": "json",
+        'geocode': address,
+        'apikey': api,
+        'format': 'json',
     })
     response.raise_for_status()
     found_places = response.json()['response']['GeoObjectCollection']['featureMember']
@@ -110,19 +111,16 @@ def fetch_coordinates(api, address):
         return None
 
     most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(' ')[::-1]
     return lon, lat
 
 
 def add_distances(order, order_restaurants):
-
     distances = []
     for restaurant in order_restaurants:
-        geo_address, created = GeoData.objects.get_or_create(address=restaurant.address)
-        if created:
-            geo_address.fetch_coordinates()
-            geo_address.update_time = timezone.now()
-        restaurant.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
+        restaurant = Restaurant.load_geos(restaurant)
+        r_geodata = restaurant.geodata[0]
+        restaurant.coordinates = (r_geodata.longitude, r_geodata.latitude)[::-1]
         distances.append(round(distance.distance(order.coordinates, restaurant.coordinates).km, 2))
 
     order.rests_with_dists = list(zip(order.restaurants, distances))
@@ -130,15 +128,10 @@ def add_distances(order, order_restaurants):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.show_price().show_available_rests()
+    order_items = Order.objects.show_price().show_available_rests().with_geo_attributes()
 
     for order in order_items:
-        address = order.address
-        geo_address, created = GeoData.objects.get_or_create(address=address)
-        if created:
-            geo_address.fetch_coordinates()
-            geo_address.update_time = timezone.now()
-        order.coordinates = (geo_address.longitude, geo_address.latitude)[::-1]
+        order.coordinates = (order.geodata.longitude, order.geodata.latitude)[::-1]
         add_distances(order, order.restaurants)
 
     return render(request, template_name='order_items.html', context={
