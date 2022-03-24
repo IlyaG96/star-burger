@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import user_passes_test
 from geopy import distance
 from geoapp.models import GeoData
 from django.utils import timezone
-from django.db.models import Prefetch
 
 
 class Login(forms.Form):
@@ -111,15 +110,15 @@ def fetch_coordinates(api, address):
         return None
 
     most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(' ')[::-1]
-    return lon, lat
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(' ')
+    return lat, lon
 
 
 def add_distances(order, order_restaurants):
     distances = []
     for restaurant in order_restaurants:
-        r_geodata = restaurant.geodata
-        restaurant.coordinates = (r_geodata.longitude, r_geodata.latitude)[::-1]
+        restaurant.coordinates = (restaurant.geodata.latitude,
+                                  restaurant.geodata.longitude)
         distances.append(round(distance.distance((order.geodata.latitude,
                                                   order.geodata.longitude), restaurant.coordinates).km, 2))
 
@@ -128,6 +127,28 @@ def add_distances(order, order_restaurants):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    all_orders = Order.objects.all()
+    all_rests = Restaurant.objects.all()
+    all_geos = GeoData.objects.all()
+
+    order_addresses = [order.address for order in all_orders]
+    rest_addresses = [restaurant.address for restaurant in all_rests]
+    all_addresses = set(order_addresses+rest_addresses)
+
+    all_existed_geo_addresses = [geo.address for geo in all_geos]
+
+    need_to_create_addresses = []
+    for address in all_addresses:
+        if address not in all_existed_geo_addresses:
+            need_to_create_addresses.append(address)
+
+    for address in need_to_create_addresses:
+        GeoData.objects.create(
+            address=address,
+            update_time=timezone.now(),
+
+        ).fetch_coordinates()
+
     order_items = Order.objects.show_price().show_available_rests().with_geo_attributes()
     for order in order_items:
         add_distances(order, order.restaurants)
