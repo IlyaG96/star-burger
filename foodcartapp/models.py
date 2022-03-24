@@ -153,9 +153,9 @@ class OrderQuerySet(models.QuerySet):
         return with_price
 
     def show_available_rests(self):
-        restaurants = Restaurant.objects.all()
+        restaurants = Restaurant.objects.prefetch_related('menu_items__product').with_geo_attributes()
         all_rests = {}
-        for restaurant in restaurants.prefetch_related('menu_items__product'):
+        for restaurant in restaurants:
             rest_menus = restaurant.menu_items.all()
             menu = [menu.product for menu in rest_menus]
             all_rests[restaurant] = menu

@@ -118,10 +118,10 @@ def fetch_coordinates(api, address):
 def add_distances(order, order_restaurants):
     distances = []
     for restaurant in order_restaurants:
-        restaurant = Restaurant.load_geos(restaurant)
-        r_geodata = restaurant.geodata[0]
+        r_geodata = restaurant.geodata
         restaurant.coordinates = (r_geodata.longitude, r_geodata.latitude)[::-1]
-        distances.append(round(distance.distance(order.coordinates, restaurant.coordinates).km, 2))
+        distances.append(round(distance.distance((order.geodata.latitude,
+                                                  order.geodata.longitude), restaurant.coordinates).km, 2))
 
     order.rests_with_dists = list(zip(order.restaurants, distances))
 
@@ -129,9 +129,7 @@ def add_distances(order, order_restaurants):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = Order.objects.show_price().show_available_rests().with_geo_attributes()
-
     for order in order_items:
-        order.coordinates = (order.geodata.longitude, order.geodata.latitude)[::-1]
         add_distances(order, order.restaurants)
 
     return render(request, template_name='order_items.html', context={
