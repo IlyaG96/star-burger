@@ -287,7 +287,7 @@ class OrderElements(models.Model):
         verbose_name='Стоимость',
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(0)],
     )
 
     class Meta:
