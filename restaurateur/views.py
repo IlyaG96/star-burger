@@ -149,7 +149,7 @@ def view_orders(request):
 
         ).fetch_coordinates()
 
-    order_items = Order.objects.show_price().show_available_rests().with_geo_attributes()
+    order_items = Order.objects.with_price().show_available_rests().with_geo_attributes()
     for order in order_items:
         add_distances(order, order.restaurants)
 
