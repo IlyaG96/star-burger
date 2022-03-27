@@ -12,7 +12,7 @@ class RestaurantQueryset(models.QuerySet):
         addresses = [restaurant.address for restaurant in self]
         geo_attrs = GeoData.objects.filter(address__in=addresses)
         for restaurant in self:
-            restaurant.geodata = list(filter(lambda geo: geo.address == restaurant.address, geo_attrs))[0]
+            restaurant.geodata = next(iter(list(filter(lambda geo: geo.address == restaurant.address, geo_attrs))))
 
         return self
 
@@ -177,7 +177,7 @@ class OrderQuerySet(models.QuerySet):
         addresses = [order.address for order in self]
         geo_attrs = GeoData.objects.filter(address__in=addresses)
         for order in self:
-            order.geodata = list(filter(lambda geo: geo.address == order.address, geo_attrs))[0]
+            order.geodata = next(iter(list(filter(lambda geo: geo.address == order.address, geo_attrs))))
 
         return self
 
