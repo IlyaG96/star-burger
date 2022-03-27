@@ -154,16 +154,16 @@ class OrderQuerySet(models.QuerySet):
 
     def show_available_rests(self):
         restaurants = Restaurant.objects.prefetch_related('menu_items__product').with_geo_attributes()
-        all_rests = {}
+        restaurants_with_menus = {}
         for restaurant in restaurants:
-            rest_menus = restaurant.menu_items.all()
-            menu = [menu.product for menu in rest_menus]
-            all_rests[restaurant] = menu
+            current_restaurant_menu = restaurant.menu_items.all()
+            menu_with_products = [menu.product for menu in current_restaurant_menu]
+            restaurants_with_menus[restaurant] = menu_with_products
 
         for order in self:
             available_rests = []
             order_products = [element.product for element in order.elements.select_related('product')]
-            for rest, menu in all_rests.items():
+            for rest, menu in restaurants_with_menus.items():
 
                 result = all(elem in menu for elem in order_products)
                 if result:
