@@ -1,7 +1,7 @@
 import os
 
 import dj_database_url
-
+import rollbar
 from environs import Env
 
 
@@ -12,6 +12,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 YANDEX_GEO_API = env.str('YANDEX_GEO_API')
+ROLLBAR_TOKEN = env.str('ROLLBAR_TOKEN')
+ROLLBAR_ENV = env.str('ROLLBAR_ENV', 'development')
 SECRET_KEY = env('SECRET_KEY', 'etirgvonenrfnoerngorenogneongg334g')
 DEBUG = env.bool('DEBUG', True)
 
@@ -41,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -132,3 +135,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'assets'),
     os.path.join(BASE_DIR, 'bundles'),
 ]
+
+ROLLBAR = {
+    'access_token': ROLLBAR_TOKEN,
+    'environment': ROLLBAR_ENV,
+    'root': BASE_DIR,
+}
+rollbar.init(**ROLLBAR)
