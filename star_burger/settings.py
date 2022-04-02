@@ -1,9 +1,7 @@
 import os
-
 import dj_database_url
-import rollbar
 from environs import Env
-
+import rollbar
 
 env = Env()
 env.read_env()
@@ -43,7 +41,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404'
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -84,6 +82,7 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'EXCEPTION_HANDLER': 'rollbar.contrib.django_rest_framework.post_exception_handler',
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ]
@@ -140,5 +139,5 @@ ROLLBAR = {
     'access_token': ROLLBAR_TOKEN,
     'environment': ROLLBAR_ENV,
     'root': BASE_DIR,
+    'enabled': True,
 }
-rollbar.init(**ROLLBAR)
