@@ -20,6 +20,11 @@ class Page(models.Model):
 
 class Banner(models.Model):
 
+    title = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
     page = models.ForeignKey(
         'Page',
         verbose_name='относится к странице',

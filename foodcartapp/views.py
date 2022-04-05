@@ -6,12 +6,38 @@ from .models import Product, Order, OrderElements
 from rest_framework.response import Response
 from django.db import transaction
 from geoapp.models import GeoData
-from django.utils import timezone
 from textwrap import dedent
+from banners.models import Banner
+
+'''[
+    {
+        'title': 'Burger',
+        'src': static('burger.jpg'),
+        'text': 'Tasty Burger at your door step',
+    },
+    {
+        'title': 'Spices',
+        'src': static('food.jpg'),
+        'text': 'All Cuisines',
+    },
+    {
+        'title': 'New York',
+        'src': static('tasty.jpg'),
+        'text': 'Food is incomplete without a tasty dessert',
+    }
+]'''
 
 
 def banners_list_api(request):
-    # FIXME move data to db?
+    banners = Banner.objects.filter(page__name='main',).order_by('order_number')
+    all_banners = []
+    for banner in banners:
+        all_banners.append({
+            'title': f'123',
+            'src': f'{banner.image.url}',
+            'text': f'123',
+        })
+
     return JsonResponse([
         {
             'title': 'Burger',
