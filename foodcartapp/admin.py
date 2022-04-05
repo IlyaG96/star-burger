@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.html import format_html
 from django.http import HttpResponseRedirect
 from .models import Product
 from .models import ProductCategory
@@ -10,6 +9,34 @@ from .models import Restaurant
 from .models import RestaurantMenuItem
 from .models import Order
 from .models import OrderElements
+from banners.models import Banner, Page
+from django.utils.html import format_html, mark_safe
+from adminsortable2.admin import SortableInlineAdminMixin
+
+
+class BannerImageSortableAdmin(admin.TabularInline, SortableInlineAdminMixin):
+    model = Banner
+    readonly_fields = "image_preview",
+
+    def image_preview(self, image):
+
+        response = format_html("<img src={} width=200>", mark_safe(image.image.url))
+
+        return response
+
+
+@admin.register(Page)
+class AdminPage(admin.ModelAdmin):
+
+    inlines = [BannerImageSortableAdmin]
+
+    class Meta:
+        model = Page
+
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    pass
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
