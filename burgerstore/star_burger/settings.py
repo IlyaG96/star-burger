@@ -1,19 +1,16 @@
 import os
-import dj_database_url
+from pathlib import Path
 from environs import Env
-import rollbar
 
 env = Env()
 env.read_env()
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 YANDEX_GEO_API = env.str('YANDEX_GEO_API')
 ROLLBAR_TOKEN = env.str('ROLLBAR_TOKEN')
 ROLLBAR_ENV = env.str('ROLLBAR_ENV', 'development')
 SECRET_KEY = env('SECRET_KEY', 'etirgvonenrfnoerngorenogneongg334g')
-DEBUG = env.bool('DEBUG', True)
+DEBUG = env.bool('DEBUG', False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
@@ -89,9 +86,13 @@ REST_FRAMEWORK = {
 
 WSGI_APPLICATION = 'star_burger.wsgi.application'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
+CSRF_COOKIE_DOMAIN = env.list('CSRF_COOKIE_DOMAIN', 'http://127.0.0.1:1337')
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:1337')
 
 DATABASES = {
     'default': env.dj_db_url('POSTGRE_URL')
@@ -114,13 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-STATIC_URL = '/static/'
 
 INTERNAL_IPS = [
     '127.0.0.1'

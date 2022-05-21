@@ -1,6 +1,7 @@
 bundles/**
 node_modules/
 media/
+burgerstore/bundles
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
