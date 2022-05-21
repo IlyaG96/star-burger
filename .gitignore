@@ -3,6 +3,7 @@ node_modules/
 media/
 burgerstore/bundles
 burgerstore/media
+burgerstore/static
 .parcel-cache
 # Byte-compiled / optimized / DLL files
 __pycache__/
