@@ -2,7 +2,8 @@ bundles/**
 node_modules/
 media/
 burgerstore/bundles
-
+burgerstore/media
+.parcel-cache
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
