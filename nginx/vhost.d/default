@@ -1,0 +1,11 @@
+
+cation /static/ {
+  alias /home/django-user/web/static/;
+  add_header Access-Control-Allow-Origin *;
+}
+
+location /media/ {
+  alias /home/django-user/web/media/;
+  add_header Access-Control-Allow-Origin *;
+}
+
