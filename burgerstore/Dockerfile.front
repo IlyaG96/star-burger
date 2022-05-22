@@ -1,6 +1,6 @@
 FROM node:16-alpine3.14
 
-RUN apk add g++ make py3-pip
+RUN apk add g++ make py3-pip && rm -rf /var/lib/apt/lists/*
 ENV HOME=/home/django-user
 ENV APP_HOME=/home/django-user/web
 WORKDIR $APP_HOME
