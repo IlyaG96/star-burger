@@ -20,8 +20,8 @@ services:
     build:
       context: ./burgerstore
       dockerfile: Dockerfile.front
-  nginx-proxy:
-    container_name: nginx-proxy
+  nginx-proxy-starburger:
+    container_name: nginx-proxy-starburger
     build:
       context: ./nginx
       dockerfile: Dockerfile.prod
@@ -50,7 +50,7 @@ services:
       - vhost:/etc/nginx/vhost.d
       - acme:/etc/acme.sh
     depends_on:
-      - nginx-proxy
+      - nginx-proxy-starburger
 
 volumes:
   static_volume:
