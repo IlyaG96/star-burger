@@ -1,5 +1,5 @@
 
-cation /static/ {
+location /static/ {
   alias /home/django-user/web/static/;
   add_header Access-Control-Allow-Origin *;
 }
