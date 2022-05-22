@@ -3,27 +3,32 @@ version: '3.8'
 services:
   web:
     build:
-      context: ./backend
+      context: ./burgerstore
       dockerfile: Dockerfile.dev
-    command: gunicorn django_docker_example_app.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn star_burger.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - static_volume:/home/django-user/web/staticfiles
-      - media_volume:/home/django-user/web/mediafiles
+      - static_volume:/home/django-user/web/static
+      - media_volume:/home/django-user/web/media
     env_file:
       - ./.env
     expose:
       - 8000
+  frontend:
+    build:
+      context: ./burgerstore
+      dockerfile: Dockerfile.front
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile.dev
     volumes:
-      - static_volume:/home/django-user/web/staticfiles
-      - media_volume:/home/django-user/web/mediafiles
+      - static_volume:/home/django-user/web/static
+      - media_volume:/home/django-user/web/media
     ports:
       - '1337:80'
     depends_on:
       - web
+      - frontend
 
 volumes:
   static_volume:
