@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile.dev
     command: sh -c "python manage.py collectstatic --noinput                             &&
                     python manage.py migrate                                             &&
-                    docker-compose -f docker-compose.prod.yaml stop star-burger_frontend  &&
                     gunicorn star_burger.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - static_volume:/home/django-user/web/static
