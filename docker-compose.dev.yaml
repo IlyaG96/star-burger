@@ -17,6 +17,7 @@ services:
       - 8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    restart: always
   frontend:
     build:
       context: ./burgerstore
@@ -33,6 +34,7 @@ services:
     depends_on:
       - web
       - frontend
+    restart: always
 
 volumes:
   static_volume:

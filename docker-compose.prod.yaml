@@ -17,10 +17,12 @@ services:
       - 8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    restart: always
   frontend:
     build:
       context: ./burgerstore
       dockerfile: Dockerfile.front
+    restart: always
   nginx-proxy-starburger:
     container_name: nginx-proxy-starburger
     build:
@@ -52,6 +54,7 @@ services:
       - acme:/etc/acme.sh
     depends_on:
       - nginx-proxy-starburger
+    restart: always
 
 volumes:
   static_volume:
