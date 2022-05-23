@@ -26,6 +26,7 @@
 Для запуска сайта нужно запустить **одновременно** бэкенд и фронтенд, в двух терминалах.
 
 ### Как собрать бэкенд
+
 <details>
 <summary>
 Как собрать бэкенд
@@ -86,6 +87,7 @@ python manage.py runserver
 <summary>
 Как собрать фронтенд
 </summary>
+
 **Откройте новый терминал**. Для работы сайта в dev-режиме необходима одновременная работа сразу двух программ `runserver` и `parcel`. Каждая требует себе отдельного терминала. Чтобы не выключать `runserver` откройте для фронтенда новый терминал и все нижеследующие инструкции выполняйте там.
 
 [Установите Node.js](https://nodejs.org/en/), если у вас его ещё нет.
@@ -148,10 +150,12 @@ Parcel будет следить за файлами в каталоге `bundle
 </details>
 
 ## Как запустить prod-версию сайта
+
 <details>
 <summary>
 Как запустить prod-версию сайта
 </summary>
+
 Собрать фронтенд:
 
 ```sh
@@ -170,10 +174,94 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 [Инструкция по подключению rollbar](https://docs.rollbar.com/docs/django)
 </details>
 
+## Как запустить dev-версию сайта с использованием docker-compose
+
+<details>
+<summary>
+Как запустить dev-версию сайта с использованием docker-compose
+</summary>
+
+Создайте в директории star-burger две переменных окружения:
+1) `.env` - обязательная.
+
+- `DEBUG`= настройка Django для включения отладочного режима. Принимает значения `TRUE` или `FALSE`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-DEBUG).
+- `SECRET_KEY`= обязательная секретная настройка Django. Это - соль для генерации хэшей. Значение может быть любым, важно лишь, чтобы оно никому не было известно. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key).
+- `ALLOWED_HOSTS`= настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
+- `DATABASE_URL`= адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
+- `CSRF_COOKIE_DOMAIN`= `http://127.0.0.1:1337`, `http://mydomain.ru`, `https://mydomain.ru` [Документация](https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-cookie-domain).
+- `CSRF_TRUSTED_ORIGINS`= `http://127.0.0.1:1337`, `http://mydomain.ru`, `https://mydomain.ru` [Документация](https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-trusted-origins).
+- `VIRTUAL_HOST`= `http://mydomain.ru` - настройка для prod версии.
+- `VIRTUAL_PORT`= `8000` - настройка для prod версии. `expose`'d порт, см файл
+- `LETSENCRYPT_HOST`= `http://mydomain.ru` - настройка для prod версии. Хост, для которого необходимо будет получить сертификат.
+- `YANDEX_GEO_API` - [получить здесь](https://developer.tech.yandex.ru/services/) API яндекса для работы с картами
+- `ROLLBAR_TOKEN` - токен [rollbar.com](https://rollbar.com)
+- `ROLLBAR_ENV` - `development` или `production`
+
+[Инструкция по подключению rollbar](https://docs.rollbar.com/docs/django)
+
+#### ВАЖНО! В переменной `DATABASE_URL` вместо localhost используйте `host.docker.internal`, если необходимо подключиться к postgres на локальном сервере.
+
+2) `.env.staging.proxy-companion` - тоже обязательная, но для prod-версии.
+
+- `DEFAULT_EMAIL`= `your_email@mail.com` - настройка для prod версии. На этот адрес будут приходить уведомления от [letsencrypt.org](https://letsencrypt.org).
+- `ACME_CA_URI`= `https://acme-staging-v02.api.letsencrypt.org/directory` - настройка для prod версии. Необходимо будет удалить данную опцию после первого получения сертификата.
+- `NGINX_PROXY_CONTAINER`= `nginx-proxy-starburger` - настройка для prod версии. Название вашего nginx-proxy контейнер из docker-compose.prod.yaml.
+
+Разрешите докеру подключаться к Postgres:
+```shell
+cd /etc/postgresql/<psql_version>/main
+
+```
+1) Отредактируйте файл `postgresql.conf`:
+Добавьте прослушивание всех адресов.
+```shell
+#------------------------------------------------------------------------------
+# CONNECTIONS AND AUTHENTICATION
+#------------------------------------------------------------------------------
+
+# - Connection Settings -
+
+listen_addresses = '*'          # what IP address(es) to listen on;
+# comma-separated list of addresses;
+# defaults to 'localhost'; use '*' for all
+# (change requires restart)
+port = 5432                             # (change requires restart)
+max_connections = 100                   # (change requires restart)
+```
+2) Отредактируйте файл `pg_hba.conf`:
+Добавьте в список "допустимых" для прослушивания адресов `172.17.0.1/0` - стандартный ip-адрес для Docker контейнера.
+```
+host    replication     all             ::1/128                md5
+host    all             all             172.17.0.1/0           md5
+host    all             all             ::ffff:ac11:1/0        md5
+```
+
+Выполните команду:
+
+```sh
+docker-compose -f docker-compose.dev.yaml up --build -d
+```
+
+Сайт будет доступен по адресу http://ip.ip.ip.ip:1337
+
+</details>
+
+## Как запустить prod-версию сайта с использованием docker-compose
+
+<details>
+<summary>
+Как запустить prod-версию сайта с использованием docker-compose
+</summary>
+
+Выполните инструкции из предыдущего пункта, а затем запустите скрипт:
+```sh
+docker-compose -f docker-compose.prod.yaml up --build -d
+```
+
+Сайт будет доступен по адресу https://yourdomain.ru
+
+</details>
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
-
-Где используется репозиторий:
-
-- Второй и третий урок [учебного модуля Django](https://dvmn.org/modules/django/)
