@@ -265,3 +265,11 @@ docker-compose -f docker-compose.prod.yaml up --build -d
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
+
+## Список возможных (и невозможных) проблем:
+
+```shell
+ERROR: for nginx-proxy-starburger Cannot start service nginx-proxy-starburger: driver failed programming external connectivity on endpoint nginx-proxy-starburger (long_hash): Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use
+```
+
+[Возможное решение](https://stackoverflow.com/questions/37971961/docker-error-bind-address-already-in-use)
